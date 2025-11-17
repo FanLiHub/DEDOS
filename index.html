@@ -32,11 +32,133 @@
     .top-hero .hero-body { padding-top: 1.25rem; padding-bottom: 1.25rem; }
     .section.teaser { padding-top: 1rem; padding-bottom: 1rem; }
     .result-img {
-  width: 900px;   /* 可根据需要调整 */
-  height: auto;
-  display: block;
-  margin: 0.25rem auto;
-}
+      width: 900px;   /* 可根据需要调整 */
+      height: auto;
+      display: block;
+      margin: 0.25rem auto;
+    }
+
+    /* --- 新增：去噪滑块组件的 CSS --- */
+
+    .denoise-card {
+      background: radial-gradient(circle at top, #1f2937 0, #020617 60%);
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 18px 18px 20px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.8);
+      
+      /* 关键：强制内部元素（图片和滑块）等宽 */
+      display: flex;
+      flex-direction: column;
+    }
+
+    .denoise-comparison {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #020617;
+    }
+
+    .denoise-img {
+      display: block;
+      width: 100%;
+      height: auto;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .denoise-after-wrap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 50%;
+      overflow: hidden;
+    }
+
+    /* 关键：修复图片对齐 */
+    .denoise-after-wrap .denoise-img {
+      width: auto;
+      height: auto;
+      max-width: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .denoise-handle {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 0;
+      border-right: 2px solid #f9fafb;
+      left: calc(50% - 1px);
+      pointer-events: none;
+    }
+
+    .denoise-handle-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 2px solid #020617;
+      background: #f9fafb;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.65);
+    }
+
+    .denoise-slider-row {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      color: #9ca3af; /* 匹配 Bulma 副标题颜色 */
+    }
+
+    /* 关键：移除了绿色边框 */
+    .denoise-slider-row span {
+      white-space: nowrap;
+      padding: 0;
+      border-radius: 0;
+      font-size: 12px;
+      color: #e5e7eb; /* 确保文字是亮的 */
+    }
+
+    .denoise-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: #1f2937;
+      outline: none;
+      cursor: pointer;
+      margin-left: 12px;
+      margin-right: 12px;
+    }
+
+    .denoise-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #38bdf8;
+      border: 2px solid #0f172a;
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35);
+    }
+
+    .denoise-slider::-moz-range-thumb {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #38bdf8; border: 2px solid #0f172a;
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35);
+    }
+    /* --- CSS 结束 --- */
+
   </style>
 
 </head>
@@ -78,7 +200,6 @@
 
             <div class="column has-text-centered">
               <div class="publication-links">
-                <!-- PDF Link. -->
                 <span class="link-block">
                   <a href="static/pdf/Domain_Generalized_Semantic_Segmentation_via_Agent_Queries_with_Diffusion_Model_Guidance.pdf" class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
@@ -87,7 +208,6 @@
                     <span>Paper</span>
                   </a>
                 </span>
-                <!-- Code Link. -->
                 <span class="link-block">
                   <a href="https://github.com/FanLiHub/QueryDiff" class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
@@ -125,7 +245,6 @@
 
   <section class="section">
     <div class="container is-max-desktop">
-      <!-- Abstract. -->
       <div class="columns is-centered has-text-centered">
         <div class="column is-four-fifths">
           <h2 class="title is-3">Abstract</h2>
@@ -144,9 +263,6 @@ Notably, it enhances the model's ability to generalize effectively to extreme do
           </div>
         </div>
       </div>
-      <!--/ Abstract. -->
-      
-      <!-- Method. -->
       <div class="columns is-centered has-text-centered">
         <div class="column is-four-fifths">
           <h2 class="title is-3">Method</h2>
@@ -159,11 +275,6 @@ Notably, it enhances the model's ability to generalize effectively to extreme do
           </div>
         </div>
       </div>
-      <!--/ Method. -->
-
-      
-
-      <!-- Qualitative. -->
       <div class="columns is-centered has-text-centered">
         <div class="column is-four-fifths">
           <h2 class="title is-3">Qualitative Results</h2>
@@ -177,6 +288,53 @@ Notably, it enhances the model's ability to generalize effectively to extreme do
       </div>
   </section>
 
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Interactive Demo</h2>
+          <div class="content has-text-centered">
+            <p style="font-size: 14px; color: #9ca3af; margin-bottom: 18px;">
+              Drag the slider to compare <strong>noisy input</strong> (left) and <strong>denoised result</strong> (right).
+            </p>
+            
+            <div class="denoise-card">
+              <div class="denoise-comparison" id="denoiseArea">
+                <img
+                  src="static/images/noisy.jpg"  
+                  alt="Noisy image"
+                  class="denoise-img"
+                  id="denoiseBase"
+                />
+                <div class="denoise-after-wrap" id="denoiseAfterWrap">
+                  <img
+                    src="static/images/denoised.jpg"
+                    alt="Denoised image"
+                    class="denoise-img"
+                  />
+                </div>
+                <div class="denoise-handle" id="denoiseHandle">
+                  <div class="denoise-handle-dot"></div>
+                </div>
+              </div>
+              <div class="denoise-slider-row">
+                <span>Noisy</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="50"
+                  class="denoise-slider"
+                  id="denoiseSlider"
+                />
+                <span>Denoised</span>
+              </div>
+            </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
   <section class="section" id="BibTeX">
     <div class="container is-max-desktop content">
       <h2 class="title">BibTeX</h2>
@@ -221,6 +379,116 @@ Notably, it enhances the model's ability to generalize effectively to extreme do
     </div>
   </footer>
 
-</body>
+  <script>
+    (function() {
+      // 封装以避免全局变量冲突
+      const slider = document.getElementById("denoiseSlider");
+      const afterWrap = document.getElementById("denoiseAfterWrap");
+      const handle = document.getElementById("denoiseHandle");
+      const area = document.getElementById("denoiseArea");
+      const baseImg = document.getElementById("denoiseBase");
+      const afterImg = document.querySelector("#denoiseAfterWrap .denoise-img");
+
+      // 确保所有元素都存在
+      if (!slider || !afterWrap || !handle || !area || !baseImg || !afterImg) {
+        console.error("Denoise slider component elements not found. Skipping init.");
+        return;
+      }
+      
+      /**
+       * 关键函数：同步两张图片的宽度 (修复对齐)
+       */
+      function syncImageAlignment() {
+        const imageWidth = baseImg.offsetWidth;
+        
+        if (imageWidth > 0) {
+          afterImg.style.width = imageWidth + "px";
+          afterImg.style.height = "auto";
+        }
+      }
+
+      // 在图片加载和窗口缩放时触发同步
+      if (baseImg.complete && baseImg.naturalWidth > 0) {
+        syncImageAlignment();
+      } else {
+        baseImg.addEventListener("load", syncImageAlignment);
+        baseImg.addEventListener("error", () => console.error("Denoise base image 'noisy.jpg' failed to load."));
+      }
+      window.addEventListener("resize", syncImageAlignment);
+      
+      /**
+       * 统一的视图更新函数 (双向绑定)
+       */
+      function updateDenoiseView(percent) {
+        const clampedPercent = Math.min(100, Math.max(0, parseFloat(percent)));
+
+        afterWrap.style.width = clampedPercent + "%";
+        handle.style.left = "calc(" + clampedPercent + "% - 1px)";
+        
+        if (slider.value != clampedPercent) {
+          slider.value = clampedPercent;
+        }
+      }
+
+      // 1. 监听底部滑块
+      slider.addEventListener("input", (e) => {
+        updateDenoiseView(e.target.value);
+      });
+
+      // 2. 监听图片区域拖动
+      let isDragging = false;
+
+      function updatePositionFromEvent(e) {
+        const rect = area.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const x = clientX - rect.left;
+        
+        // 关键：在计算百分比前钳制 X 坐标
+        const clampedX = Math.min(rect.width, Math.max(0, x));
+        const percent = (clampedX / rect.width) * 100;
+        
+        updateDenoiseView(percent);
+      }
+      
+      area.addEventListener("mousedown", (e) => {
+        e.preventDefault(); 
+        isDragging = true;
+        updatePositionFromEvent(e); 
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+          updatePositionFromEvent(e);
+        }
+      });
+
+      window.addEventListener("mouseup", () => {
+        isDragging = false;
+      });
+
+      // 3. 支持触摸屏
+      area.addEventListener("touchstart", (e) => {
+        isDragging = true;
+        updatePositionFromEvent(e);
+      }, { passive: true }); 
+
+      window.addEventListener("touchmove", (e) => {
+        if (isDragging) {
+          e.preventDefault(); 
+          updatePositionFromEvent(e);
+        }
+      }, { passive: false }); 
+
+      window.addEventListener("touchend", () => {
+        isDragging = false;
+      });
+
+      // 4. 初始化
+      updateDenoiseView(slider.value);
+      setTimeout(syncImageAlignment, 0); // 在布局后运行
+
+    })(); // 立即执行函数
+  </script>
+  </body>
 
 </html>
