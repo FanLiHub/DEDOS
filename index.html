@@ -47,7 +47,6 @@
       padding: 18px 18px 20px;
       box-shadow: 0 18px 40px rgba(15, 23, 42, 0.8);
       
-      /* 关键：强制内部元素（图片和滑块）等宽 */
       display: flex;
       flex-direction: column;
     }
@@ -78,7 +77,6 @@
       overflow: hidden;
     }
 
-    /* 关键：修复图片对齐 */
     .denoise-after-wrap .denoise-img {
       width: auto;
       height: auto;
@@ -116,16 +114,15 @@
       display: flex;
       align-items: center;
       font-size: 12px;
-      color: #9ca3af; /* 匹配 Bulma 副标题颜色 */
+      color: #9ca3af;
     }
 
-    /* 关键：移除了绿色边框 */
     .denoise-slider-row span {
       white-space: nowrap;
       padding: 0;
       border-radius: 0;
       font-size: 12px;
-      color: #e5e7eb; /* 确保文字是亮的 */
+      color: #e5e7eb;
     }
 
     .denoise-slider {
@@ -157,6 +154,35 @@
       background: #38bdf8; border: 2px solid #0f172a;
       box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35);
     }
+
+    /* --- 新增：箭头按钮样式 --- */
+    .denoise-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: #e5e7eb;
+      border-radius: 50%;
+      font-size: 20px;
+      line-height: 38px;
+      text-align: center;
+      cursor: pointer;
+      z-index: 10;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+    .denoise-arrow:hover {
+      background: rgba(30, 41, 59, 0.8);
+    }
+    .denoise-arrow.prev {
+      left: 10px;
+    }
+    .denoise-arrow.next {
+      right: 10px;
+    }
     /* --- CSS 结束 --- */
 
   </style>
@@ -164,9 +190,7 @@
 </head>
 
 <body>
-
-
-
+  
   <section class="hero top-hero">
     <div class="hero-body">
       <div class="container is-max-desktop">
@@ -287,7 +311,6 @@ Notably, it enhances the model's ability to generalize effectively to extreme do
         </div>
       </div>
   </section>
-
   <section class="section">
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
@@ -296,26 +319,45 @@ Notably, it enhances the model's ability to generalize effectively to extreme do
           <div class="content has-text-centered">
             <p style="font-size: 14px; color: #9ca3af; margin-bottom: 18px;">
               Drag the slider to compare <strong>noisy input</strong> (left) and <strong>denoised result</strong> (right).
+              <br>Use the arrows to switch between examples.
             </p>
             
             <div class="denoise-card">
               <div class="denoise-comparison" id="denoiseArea">
+                
                 <img
                   src="static/images/oriimg1.png"  
-                  alt="Noisy image"
-                  class="denoise-img"
-                  id="denoiseBase"
+                  alt="Noisy image 1"
+                  class="denoise-img denoise-base-img"
                 />
+                <img
+                  src="static/images/oriimg2.png"  
+                  alt="Noisy image 2"
+                  class="denoise-img denoise-base-img"
+                  style="display: none;"
+                />
+
                 <div class="denoise-after-wrap" id="denoiseAfterWrap">
                   <img
                     src="static/images/denoise1.png"
-                    alt="Denoised image"
-                    class="denoise-img"
+                    alt="Denoised image 1"
+                    class="denoise-img denoise-after-img"
+                  />
+                  <img
+                    src="static/images/denoise3.png"
+                    alt="Denoised image 2"
+                    class="denoise-img denoise-after-img"
+                    style="display: none;"
                   />
                 </div>
+
                 <div class="denoise-handle" id="denoiseHandle">
                   <div class="denoise-handle-dot"></div>
                 </div>
+
+                <button class="denoise-arrow prev" id="denoisePrev" aria-label="Previous image">&lt;</button>
+                <button class="denoise-arrow next" id="denoiseNext" aria-label="Next image">&gt;</button>
+
               </div>
               <div class="denoise-slider-row">
                 <span>Noisy</span>
@@ -386,38 +428,56 @@ Notably, it enhances the model's ability to generalize effectively to extreme do
       const afterWrap = document.getElementById("denoiseAfterWrap");
       const handle = document.getElementById("denoiseHandle");
       const area = document.getElementById("denoiseArea");
-      const baseImg = document.getElementById("denoiseBase");
-      const afterImg = document.querySelector("#denoiseAfterWrap .denoise-img");
+
+      // --- 升级：选取所有图片 ---
+      const baseImgs = document.querySelectorAll(".denoise-base-img");
+      const afterImgs = document.querySelectorAll(".denoise-after-img");
+      const prevBtn = document.getElementById("denoisePrev");
+      const nextBtn = document.getElementById("denoiseNext");
 
       // 确保所有元素都存在
-      if (!slider || !afterWrap || !handle || !area || !baseImg || !afterImg) {
+      if (!slider || !afterWrap || !handle || !area || baseImgs.length === 0 || afterImgs.length === 0 || !prevBtn || !nextBtn) {
         console.error("Denoise slider component elements not found. Skipping init.");
         return;
       }
       
+      // --- 新增：轮播状态 ---
+      let currentIndex = 0;
+      const numImages = baseImgs.length;
+
       /**
        * 关键函数：同步两张图片的宽度 (修复对齐)
+       * (已升级为使用当前索引)
        */
       function syncImageAlignment() {
-        const imageWidth = baseImg.offsetWidth;
+        if (numImages === 0) return;
+        
+        // 1. 获取 *当前激活* 的底图的宽度
+        const currentBaseImg = baseImgs[currentIndex];
+        const imageWidth = currentBaseImg.offsetWidth;
         
         if (imageWidth > 0) {
-          afterImg.style.width = imageWidth + "px";
-          afterImg.style.height = "auto";
+          // 2. 将此宽度应用到 *所有* "去噪后" 的图片上
+          //    (防止切换时发生布局跳动)
+          afterImgs.forEach(img => {
+            img.style.width = imageWidth + "px";
+            img.style.height = "auto";
+          });
         }
       }
 
-      // 在图片加载和窗口缩放时触发同步
-      if (baseImg.complete && baseImg.naturalWidth > 0) {
+      // 在 *第一张* 图片加载和窗口缩放时触发同步
+      if (baseImgs[0].complete && baseImgs[0].naturalWidth > 0) {
         syncImageAlignment();
       } else {
-        baseImg.addEventListener("load", syncImageAlignment);
-        baseImg.addEventListener("error", () => console.error("Denoise base image 'noisy.jpg' failed to load."));
+        baseImgs[0].addEventListener("load", syncImageAlignment);
+        baseImgs[0].addEventListener("error", () => console.error("Denoise base image 'noisy.jpg' failed to load."));
       }
       window.addEventListener("resize", syncImageAlignment);
       
       /**
        * 统一的视图更新函数 (双向绑定)
+       * (此函数无需修改)
        */
       function updateDenoiseView(percent) {
         const clampedPercent = Math.min(100, Math.max(0, parseFloat(percent)));
@@ -430,12 +490,42 @@ Notably, it enhances the model's ability to generalize effectively to extreme do
         }
       }
 
-      // 1. 监听底部滑块
+      /**
+       * --- 新增：切换图片集的函数 ---
+       */
+      function switchImageSet(newIndex) {
+        // 1. 处理循环
+        if (newIndex >= numImages) {
+          newIndex = 0;
+        } else if (newIndex < 0) {
+          newIndex = numImages - 1;
+        }
+
+        // 2. 隐藏当前的
+        baseImgs[currentIndex].style.display = 'none';
+        afterImgs[currentIndex].style.display = 'none';
+
+        // 3. 更新索引
+        currentIndex = newIndex;
+
+        // 4. 显示新的
+        baseImgs[currentIndex].style.display = 'block';
+        afterImgs[currentIndex].style.display = 'block';
+
+        // 5. 关键：为新图片重新计算对齐
+        syncImageAlignment();
+
+        // 6. (可选) 重置滑块到中间
+        updateDenoiseView(50);
+      }
+
+
+      // --- 1. 监听底部滑块 ---
       slider.addEventListener("input", (e) => {
         updateDenoiseView(e.target.value);
       });
 
-      // 2. 监听图片区域拖动
+      // --- 2. 监听图片区域拖动 ---
       let isDragging = false;
 
       function updatePositionFromEvent(e) {
@@ -443,7 +533,6 @@ Notably, it enhances the model's ability to generalize effectively to extreme do
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const x = clientX - rect.left;
         
-        // 关键：在计算百分比前钳制 X 坐标
         const clampedX = Math.min(rect.width, Math.max(0, x));
         const percent = (clampedX / rect.width) * 100;
         
@@ -466,7 +555,7 @@ Notably, it enhances the model's ability to generalize effectively to extreme do
         isDragging = false;
       });
 
-      // 3. 支持触摸屏
+      // --- 3. 支持触摸屏 ---
       area.addEventListener("touchstart", (e) => {
         isDragging = true;
         updatePositionFromEvent(e);
@@ -483,7 +572,19 @@ Notably, it enhances the model's ability to generalize effectively to extreme do
         isDragging = false;
       });
 
-      // 4. 初始化
+      // --- 4. 新增：监听箭头点击 ---
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // 防止触发 area 的 mousedown
+        switchImageSet(currentIndex - 1);
+      });
+
+      nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // 防止触发 area 的 mousedown
+        switchImageSet(currentIndex + 1);
+      });
+
+
+      // --- 5. 初始化 ---
       updateDenoiseView(slider.value);
       setTimeout(syncImageAlignment, 0); // 在布局后运行
 
