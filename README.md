@@ -13,6 +13,9 @@ Recently, open-vocabulary semantic segmentation has garnered growing attention. 
 
 ![Framework](static/images/framework.png)
 
+## Visual Results
+![Framework](static/images/qualitatives.png)
+
 ## Environment
 
 - Python (3.8.19)
@@ -59,6 +62,7 @@ This repo is built upon these previous works:
 
 - [CAT-Seg](https://github.com/cvlab-kaist/CAT-Seg)
 - [Zegformer](https://github.com/dingjiansw101/ZegFormer)
+- [ODISE](https://github.com/NVlabs/ODISE/tree/main)
 
 ## Citation
 
