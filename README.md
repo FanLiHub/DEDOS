@@ -37,11 +37,119 @@ pip install -r requirements.txt
 
 ## Dataset Preparation
 
-- Download COCO (2017) images from https://cocodataset.org/ and COCO-Stuff annotations from https://github.com/nightrome/cocostuff.
-- Download the ADE20K-150 dataset from http://sceneparsing.csail.mit.edu.
-- Download the data of ADE20k-Full from https://groups.csail.mit.edu/vision/datasets/ADE20K/request_data/.
-- Download the data of PASCAL VOC from http://host.robots.ox.ac.uk/pascal/VOC/voc2012/#devkit.
-- Download the PASCAL VOC 2010 data from [https://www.cs.stanford.edu/~roozbeh/pascal-context/](https://www.google.com/search?q=https://www.cs.stanford.edu/~roozbeh/pascal-context/) and the annotations for the [59](https://codalabuser.blob.core.windows.net/public/trainval_merged.json) and [459](https://roozbehm.info/pascal-context/trainval.tar.gz.) classes.
+COCO-Stuff Dataset
+
+- Get COCO 2017 Images:
+
+  ```
+  wget http://images.cocodataset.org/zips/train2017.zip
+  wget http://images.cocodataset.org/zips/val2017.zip
+  ```
+
+- Get COCO-Stuff Annotations:
+
+  Bash
+
+  ```
+  wget http://calvin.inf.ed.ac.uk/wp-content/uploads/data/cocostuffdataset/stuffthingmaps_trainval2017.zip
+  ```
+
+- Unzip: Extract all three downloaded archives.
+
+  - Place the image contents (`train2017` and `val2017` folders) inside `coco-stuff/images/`.
+  - Place the annotation contents (segmentation maps) inside `coco-stuff/annotations/`.
+
+- Pre-processing (Generate Labels):
+
+  
+
+  ```
+  python datasets/prepare_coco_stuff.py
+  ```
+
+  This script generates the final, Detectron2-compatible labels in `annotations_detectron2/`.
+
+ADE20K Datasets (150 and 847 Classes)
+
+- Get ADEChallengeData2016:
+
+  ```
+  wget http://data.csail.mit.edu/places/ADEchallenge/ADEChallengeData2016.zip
+  ```
+
+- Unzip: Extract the archive. The structure should automatically align with the paths above
+
+- Pre-processing (Generate Labels):
+
+  ```
+  python datasets/prepare_ade20k_150.py
+  ```
+
+- Get ADE20k-Full: Download the data of ADE20k-Full from https://groups.csail.mit.edu/vision/datasets/ADE20K/request_data/.
+
+  Unzip: Extract the archive. Ensure the core structure is as listed above.
+
+- Pre-processing (Generate Labels):
+
+  ```
+  python datasets/prepare_ade20k_847.py
+  ```
+
+PASCAL VOC & PASCAL Context Datasets
+
+- Get VOC 2012 Data:
+
+  ```
+  wget http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
+  ```
+
+- Get Segmentation Augmentation:
+
+  Bash
+
+  ```
+  wget https://www.dropbox.com/s/oeu149j8qtbs1x0/SegmentationClassAug.zip
+  ```
+
+- Unzip: Extract both archives. Ensure the contents are placed inside the VOCdevkit/VOC2012/ folder.
+
+- Pre-processing (Generate Labels):
+
+  ```
+  python datasets/prepare_voc.py
+  ```
+
+- Get VOC 2010 Images:
+
+  ```
+  wget http://host.robots.ox.ac.uk/pascal/VOC/voc2010/VOCtrainval_03-May-2010.tar
+  ```
+
+- Get Context Annotations (Merged JSON):
+
+  ```
+  wget https://codalabuser.blob.core.windows.net/public/trainval_merged.json
+  ```
+
+- Get Context Annotations (Segmentation Maps):
+
+  ```
+  wget https://roozbehm.info/pascal-context/trainval.tar.gz
+  ```
+
+- Unzip: Extract the files and place them inside the VOCdevkit/VOC2010/ folder.
+
+- **Pre-processing (Generate Labels):**
+
+  ```
+  # For 59 classes
+  python datasets/prepare_pascal_context_59.py
+  
+  # For 459 classes
+  python datasets/prepare_pascal_context_459.py
+  ```
+
+
 
 ## Evaluation
 
