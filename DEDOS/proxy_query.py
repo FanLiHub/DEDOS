@@ -10,6 +10,23 @@ from torch import Tensor
 from timm.models.layers import DropPath
 
 
+def kronecker_product(a, b):
+    siz1 = torch.Size(torch.tensor(a.shape[-2:]) * torch.tensor(b.shape[-2:]))
+    res = a.unsqueeze(-1).unsqueeze(-3) * b.unsqueeze(-2).unsqueeze(-4)
+    siz0 = res.shape[:-4]
+    out = res.reshape(siz0 + siz1)
+    return out
+
+
+def kronecker_product_einsum_batched(A: torch.Tensor, B: torch.Tensor):
+    assert A.dim() == 3 and B.dim() == 3
+    res = torch.einsum('bac,bkp->bakcp', A, B).view(
+        A.size(0),
+        A.size(1) * B.size(1),
+        A.size(2) * B.size(2)
+    )
+    return res
+
 class DWConv(nn.Module):
     def __init__(self, dim=768):
         super(DWConv, self).__init__()
@@ -199,9 +216,19 @@ class object_query(nn.Module):
         self.create_model()
 
     def create_model(self):
+        K = int(math.sqrt(self.token_length))
+        assert K * K == self.token_length, \
+            f"token_length={self.token_length} is not a perfect square; please adjust design."
 
-        self.learnable_tokens1 = nn.Parameter(
-            torch.empty([self.num_layers, self.token_length, self.embed_dims])
+        self.basic_kernel_len = K
+        self.diffusion_kernel_len = K
+
+        self.basic_kernel = nn.Parameter(
+            torch.empty(self.basic_kernel_len, self.embed_dims)
+        )
+
+        self.diffusion_kernel = nn.Parameter(
+            torch.empty(self.num_layers, self.diffusion_kernel_len, self.embed_dims)
         )
 
         self.scale = nn.Parameter(torch.tensor(self.scale_init))
@@ -216,7 +243,8 @@ class object_query(nn.Module):
             )
         )
 
-        nn.init.uniform_(self.learnable_tokens1.data, -val, val)
+        nn.init.uniform_(self.basic_kernel.data, -val, val)
+        nn.init.uniform_(self.diffusion_kernel.data, -val, val)
         nn.init.kaiming_uniform_(self.mlp_delta_f.weight, a=math.sqrt(5))
         nn.init.kaiming_uniform_(self.mlp_token2feat.weight, a=math.sqrt(5))
 
@@ -244,12 +272,25 @@ class object_query(nn.Module):
             for _ in range(self.num_layers)
         ])
 
+    def _compose_tokens_for_layer(self, layer: int) -> Tensor:
+        A = self.basic_kernel.unsqueeze(0).unsqueeze(-1)
+        B = self.diffusion_kernel[layer].unsqueeze(0)
+
+        res = kronecker_product_einsum_batched(A, B)
+        tokens = res.squeeze(0)
+
+        return tokens
+
     def get_tokens(self, layer: int) -> Tensor:
 
         if layer == -1:
-            return self.learnable_tokens1
+            all_tokens = []
+            for l in range(self.num_layers):
+                t_l = self._compose_tokens_for_layer(l)
+                all_tokens.append(t_l.unsqueeze(0))
+            return torch.cat(all_tokens, dim=0)
         else:
-            return self.learnable_tokens1[layer]
+            return self._compose_tokens_for_layer(layer)
 
     def return_auto(self):
         tokens = self.transform(self.get_tokens(-1))
