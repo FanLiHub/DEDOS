@@ -139,7 +139,7 @@ PASCAL VOC & PASCAL Context Datasets
 
 - Unzip: Extract the files and place them inside the VOCdevkit/VOC2010/ folder.
 
-- **Pre-processing (Generate Labels):**
+- Pre-processing (Generate Labels):
 
   ```
   # For 59 classes
