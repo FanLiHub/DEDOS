@@ -153,25 +153,39 @@ PASCAL VOC & PASCAL Context Datasets
 
 ## Evaluation
 
-    sh run.sh [CONFIG] [NUM_GPUS] [OUTPUT_DIR] [OPTS]
-    
-    sh eval.sh configs/vitl_336.yaml 4 output/ MODEL.WEIGHTS path/to/weights.pth
-    
-    python train_net.py \
-    --config-file configs/diff.yaml \
-    --dist-url auto \
-    --eval-only \
-    --machine-rank 0 \
-    --num-gpus 1 \
-    --num-machines 1 \
-    --resume False \
-    --opts \
-        OUTPUT_DIR output/eval \
-        MODEL.SEM_SEG_HEAD.TEST_CLASS_JSON datasets/ade150.json \
-        DATASETS.TEST "(\"ade20k_150_test_sem_seg\",)" \
-        TEST.SLIDING_WINDOW True \
-        MODEL.SEM_SEG_HEAD.POOLING_SIZES "[1,1]" \
-        MODEL.WEIGHTS /datanvme/lf/output/cat-seg/train/diffusion/onlyfeature_mask2head-fp32-512-attention-x0.01-b8-2024-10-23-16:16:04/model_0029999.pth
+    python val_net.py \
+        [CONFIG_FILE_PATH] \
+        [NUM_GPUS] \
+        [OUTPUT_DIRECTORY] \
+        [FLAG_FOR_EVALUATION] \
+        [FLAG_FOR_RESUME] \
+        --opts \
+            MODEL.WEIGHTS [PATH_TO_MODEL_WEIGHTS] \
+            DATASETS.TEST [DATASET_NAME_TUPLE] \
+            # ... Other Model or Dataset specific settings ...
+            
+
+For example:
+
+```
+python val_net.py \
+--config-file configs/diff.yaml \
+--dist-url auto \
+--eval-only \
+--machine-rank 0 \
+--num-gpus 1 \
+--num-machines 1 \
+--resume False \
+--opts \
+    OUTPUT_DIR output/eval \
+    MODEL.SEM_SEG_HEAD.TEST_CLASS_JSON datasets/ade150.json \
+    DATASETS.TEST "(\"ade20k_150_test_sem_seg\",)" \
+    TEST.SLIDING_WINDOW True \
+    MODEL.SEM_SEG_HEAD.POOLING_SIZES "[1,1]" \
+    MODEL.WEIGHTS DEDOS/train/x0.01-b8-2024-10-23-16:16:04/model_0001.pth
+
+```
+
 
     
 ## Demo
