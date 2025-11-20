@@ -46,6 +46,13 @@ pip install -r requirements.txt
     sh run.sh [CONFIG] [NUM_GPUS] [OUTPUT_DIR] [OPTS]
     
     sh eval.sh configs/vitl_336.yaml 4 output/ MODEL.WEIGHTS path/to/weights.pth
+## Demo
+'''
+python demo.py \
+    --config-file ../configs/diff.yaml \
+    --input /datanvme/lf/data/cityscapes_semantic_d2/image/val/lindau_000056_000019_leftImg8bit.png \
+    --output /datanvme/lf/debug \
+    --opts MODEL.WEIGHTS /datanvme/lf/output/cat-seg/train/debug/2024-10-18-23:48:52/model_final.pth
 
 ## Training
 
