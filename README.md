@@ -169,7 +169,7 @@ For example:
 
 ```
 python val_net.py \
---config-file configs/diff.yaml \
+--config-file configs/vitl_336.yaml \
 --dist-url auto \
 --eval-only \
 --machine-rank 0 \
@@ -189,12 +189,24 @@ python val_net.py \
 
     
 ## Demo
-'''
-python demo.py \
-    --config-file ../configs/diff.yaml \
-    --input /datanvme/lf/data/cityscapes_semantic_d2/image/val/lindau_000056_000019_leftImg8bit.png \
-    --output /datanvme/lf/debug \
-    --opts MODEL.WEIGHTS /datanvme/lf/output/cat-seg/train/debug/2024-10-18-23:48:52/model_final.pth
+
+    python demo.py \
+        [CONFIG_FILE_PATH] \
+        [INPUT_IMAGE_PATH] \
+        [OUTPUT_DIRECTORY] \
+        --opts \
+            MODEL.WEIGHTS [PATH_TO_MODEL_WEIGHTS] \
+            # ... Other optional settings ...
+
+For example:
+
+```
+python demo.py
+--config-file ../configs/vitl_336.yaml
+--input /datanvme/lf/data/cityscapes_semantic_d2/image/val/lindau_000056_000019_leftImg8bit.png
+--output /datanvme/lf/debug
+--opts MODEL.WEIGHTS DEDOS/train/2024-10-18-23:48:52/model_final.pth
+```
 
 ## Training 
 
