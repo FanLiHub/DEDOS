@@ -46,6 +46,24 @@ pip install -r requirements.txt
     sh run.sh [CONFIG] [NUM_GPUS] [OUTPUT_DIR] [OPTS]
     
     sh eval.sh configs/vitl_336.yaml 4 output/ MODEL.WEIGHTS path/to/weights.pth
+    
+    python train_net.py \
+    --config-file configs/diff.yaml \
+    --dist-url auto \
+    --eval-only \
+    --machine-rank 0 \
+    --num-gpus 1 \
+    --num-machines 1 \
+    --resume False \
+    --opts \
+        OUTPUT_DIR output/eval \
+        MODEL.SEM_SEG_HEAD.TEST_CLASS_JSON datasets/ade150.json \
+        DATASETS.TEST "(\"ade20k_150_test_sem_seg\",)" \
+        TEST.SLIDING_WINDOW True \
+        MODEL.SEM_SEG_HEAD.POOLING_SIZES "[1,1]" \
+        MODEL.WEIGHTS /datanvme/lf/output/cat-seg/train/diffusion/onlyfeature_mask2head-fp32-512-attention-x0.01-b8-2024-10-23-16:16:04/model_0029999.pth
+
+    
 ## Demo
 '''
 python demo.py \
@@ -62,6 +80,16 @@ python demo.py \
     sh run.sh configs/vitb_384.yaml 4 output/
     # For ViT-L variant
     sh run.sh configs/vitl_336.yaml 4 output/
+
+    python train_net.py \
+    --config-file configs/vitl_336.yaml \
+    --dist-url auto \
+    --num-gpus 1 \
+    --num-machines 1 \
+    --machine-rank 0 \
+    --resume \
+    --opts \
+        OUTPUT_DIR /datanvme0/lifan/output/cat-seg/train/debug/$(date "+%Y-%m-%d-%H:%M:%S")
 
 
 ## Acknowledgements
