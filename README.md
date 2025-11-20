@@ -196,24 +196,28 @@ python demo.py \
     --output /datanvme/lf/debug \
     --opts MODEL.WEIGHTS /datanvme/lf/output/cat-seg/train/debug/2024-10-18-23:48:52/model_final.pth
 
-## Training
-
-    sh run.sh [CONFIG] [NUM_GPUS] [OUTPUT_DIR] [OPTS]
-    
-    # For ViT-B variant
-    sh run.sh configs/vitb_384.yaml 4 output/
-    # For ViT-L variant
-    sh run.sh configs/vitl_336.yaml 4 output/
+## Training 
 
     python train_net.py \
-    --config-file configs/vitl_336.yaml \
-    --dist-url auto \
-    --num-gpus 1 \
-    --num-machines 1 \
-    --machine-rank 0 \
-    --resume \
-    --opts \
-        OUTPUT_DIR /datanvme0/lifan/output/cat-seg/train/debug/$(date "+%Y-%m-%d-%H:%M:%S")
+        [CONFIG_FILE_PATH] \
+        [NUM_GPUS] \
+        [OUTPUT_DIRECTORY_SPECIFIER] \
+        [RESUME_FLAG] \
+        --opts
+
+For example:
+
+```
+python train_net.py \
+--config-file configs/vitl_336.yaml \
+--dist-url auto \
+--num-gpus 1 \
+--num-machines 1 \
+--machine-rank 0 \
+--resume \
+--opts \
+    OUTPUT_DIR /datanvme0/lifan/output/cat-seg/train/debug/$(date "+%Y-%m-%d-%H:%M:%S")
+```
 
 
 ## Acknowledgements
