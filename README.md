@@ -23,6 +23,8 @@ Recently, open-vocabulary semantic segmentation has garnered growing attention. 
 - PyTorch (1.13.1) 
 - TorchVision (0.14.1)
 - diffusers (0.30.2)
+- detectron2 (0.6c)
+- transformers (4.44.2)
 
 ## Installation
 
